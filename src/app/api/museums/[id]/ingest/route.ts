@@ -83,7 +83,7 @@ export async function POST(
 
         // Upload to OpenAI vector store
         const file = await openai.files.create({
-          file: new File([fileBuffer], archive.filename, { 
+          file: new File([new Uint8Array(fileBuffer)], archive.filename, { 
             type: archive.mimeType || "application/octet-stream" 
           }),
           purpose: "assistants"
