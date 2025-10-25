@@ -10,10 +10,10 @@ const openai = new OpenAI({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const museumId = params.id;
+    const { id: museumId } = await params;
     
     // Get museum and pending/uploaded files
     const museum = await prisma.museum.findUnique({
