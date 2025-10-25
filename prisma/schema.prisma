@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Museum {
+  id               String   @id @default(cuid())
+  name             String
+  website          String?       // optional
+  description      String?       // optional (UA text allowed)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  vectorStoreId    String?       // OpenAI vector store id
+  archives         ArchiveFile[]
+  floorplan        Floorplan?
+  tourRequests     TourRequest[]
+  tourPlans        TourPlan[]
+}
+
+model ArchiveFile {
+  id           String   @id @default(cuid())
+  museumId     String
+  museum       Museum   @relation(fields: [museumId], references: [id])
+  filename     String
+  mimeType     String?
+  sizeBytes    Int?
+  storagePath  String   // local tmp or object storage key
+  sourceType   ArchiveSourceType // 'UPLOAD' | 'URL'
+  url          String?  // when sourceType = URL
+  status       IngestStatus @default(PENDING) // PENDING|UPLOADED|INDEXING|READY|FAILED
+  error        String?
+  createdAt    DateTime @default(now())
+}
+
+enum ArchiveSourceType { 
+  UPLOAD 
+  URL 
+}
+
+enum IngestStatus { 
+  PENDING 
+  UPLOADED 
+  INDEXING 
+  READY 
+  FAILED 
+}
+
+model Floorplan {
+  id          String   @id @default(cuid())
+  museumId    String   @unique
+  museum      Museum   @relation(fields: [museumId], references: [id])
+  imagePath   String?  // uploaded floorplan image (png/jpg) optional
+  notes       String?  // UA free text
+  // serialized manual structure (rooms, markers) for MVP
+  structure   Json?    // see STEP 3 JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TourRequest {
+  id          String   @id @default(cuid())
+  museumId    String
+  museum      Museum @relation(fields: [museumId], references: [id])
+  interests   Json     // e.g., ["економіка","політика"]
+  level       String   // "Діти"|"Дорослі"|"Професіонали"
+  minutes     Int
+  createdAt   DateTime @default(now())
+  
+  tourPlans   TourPlan[]
+}
+
+model TourPlan {
+  id            String   @id @default(cuid())
+  museumId      String
+  museum        Museum   @relation(fields: [museumId], references: [id])
+  tourRequestId String?
+  tourRequest   TourRequest? @relation(fields: [tourRequestId], references: [id])
+  resultJson    Json     // exact JSON returned from OpenAI (see schema STEP 5)
+  createdAt     DateTime @default(now())
+}

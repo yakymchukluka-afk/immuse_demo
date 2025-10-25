@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Immuse - Archive-to-Tour MVP
 
-## Getting Started
+Backend-first MVP for creating personalized museum tours from archive materials using OpenAI's file search and vector stores.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- ✅ Next.js 14 with App Router and TypeScript
+- ✅ SQLite + Prisma for data persistence
+- ✅ OpenAI Node SDK with Vector Stores and File Search
+- ✅ File upload with drag-and-drop support
+- ✅ Floorplan editor with react-konva
+- ✅ Ukrainian-only UI with shadcn/ui
+- ✅ Complete 5-step wizard workflow
+
+## Quick Start
+
+1. **Set up environment variables:**
+   ```bash
+   cp .env.example .env.local
+   # Add your OpenAI API key to .env.local
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Set up database:**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
+
+4. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open http://localhost:3000**
+
+## API Endpoints
+
+### Museums
+- `POST /api/museums` - Create museum
+- `POST /api/museums/[id]/archives` - Upload files or add URLs
+- `POST /api/museums/[id]/ingest` - Process archives with OpenAI
+- `GET /api/museums/[id]/ingest/status` - Check processing status
+- `POST /api/museums/[id]/floorplan` - Save floorplan data
+
+### Tours
+- `POST /api/tours` - Generate tour from museum data
+- `GET /api/tours/[id]` - Get saved tour
+
+### Testing
+- `GET /api/test-openai` - Test OpenAI API connection
+
+## Database Schema
+
+The app uses Prisma with SQLite and includes these models:
+
+- **Museum** - Basic museum information
+- **ArchiveFile** - Uploaded files and URLs with processing status
+- **Floorplan** - Floorplan images and manual marker data
+- **TourRequest** - User preferences for tour generation
+- **TourPlan** - Generated tour results from OpenAI
+
+## Workflow
+
+1. **Museum Info** - Enter basic museum details
+2. **Archives** - Upload files (.pdf, .txt, .docx, .zip) or add URLs
+3. **Floorplan** - Upload floorplan image and add markers manually
+4. **Processing** - Wait for OpenAI to process archives
+5. **Tour Generation** - Generate personalized tour based on interests
+
+## Testing
+
+The app includes test files in `test-files/` directory:
+- `museum-info.txt` - General museum information
+- `economic-history.txt` - Economic history content
+
+## Environment Variables
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+DATABASE_URL="file:./dev.db"
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend:** Next.js 14, React, TypeScript, Tailwind CSS, shadcn/ui
+- **Backend:** Next.js API routes, Prisma ORM
+- **Database:** SQLite
+- **AI:** OpenAI API (Vector Stores, File Search, Responses API)
+- **File Handling:** Busboy for multipart uploads
+- **Canvas:** react-konva for floorplan editor
+- **Validation:** Zod for API validation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```
+src/
+├── app/
+│   ├── api/           # API routes
+│   ├── globals.css    # Global styles
+│   └── page.tsx       # Main page
+├── components/
+│   ├── ui/           # shadcn/ui components
+│   ├── FloorplanEditor.tsx
+│   └── MuseumWizard.tsx
+├── lib/
+│   ├── prisma.ts     # Prisma client
+│   └── utils.ts      # Utility functions
+├── locales/
+│   └── uk.ts         # Ukrainian translations
+└── generated/
+    └── prisma/       # Generated Prisma client
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Development Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- All UI text is in Ukrainian as specified
+- File uploads are stored in `uploads/` directory
+- OpenAI vector stores are created per museum
+- Tour generation uses structured JSON output with strict schema
+- Floorplan editor supports manual marker placement
+- Status polling for archive processing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Next Steps
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add PDF generation for tours
+- Implement sharing URLs for saved tours
+- Add progress bars for file uploads
+- Implement rate limiting for tour generation
+- Add more file format support
+- Enhance floorplan editor with room drawing tools
