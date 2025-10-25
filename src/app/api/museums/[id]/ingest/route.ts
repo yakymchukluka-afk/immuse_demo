@@ -99,7 +99,7 @@ export async function POST(
           where: { id: archive.id },
           data: { 
             status: "READY",
-            storagePath: archive.sourceType === "URL" ? archive.url : archive.storagePath
+            storagePath: archive.sourceType === "URL" ? archive.url || archive.storagePath : archive.storagePath
           }
         });
 
