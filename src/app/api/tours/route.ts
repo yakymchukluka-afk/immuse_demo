@@ -89,7 +89,12 @@ export async function POST(request: NextRequest) {
           role: "user",
           content: `Музей: ${museum.name}\nІнтереси: ${validatedData.interests.join(", ")}\nРівень: ${validatedData.level}\nЧас: ${validatedData.minutes} хв`
         }],
-        tools: [{ type: "file_search" }],
+        tools: [{ 
+          type: "file_search",
+          file_search: {
+            vector_store_ids: [museum.vectorStoreId!]
+          }
+        }],
         attachments: [{ vector_store_id: museum.vectorStoreId }],
         response_format: { 
           type: "json_schema", 
