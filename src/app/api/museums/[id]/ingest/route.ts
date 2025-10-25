@@ -82,10 +82,16 @@ export async function POST(
         }
 
         // Upload to OpenAI vector store
-        const file = await openai.vectorStores.files.upload(vectorStoreId, {
+        const file = await openai.files.create({
           file: new File([fileBuffer], archive.filename, { 
             type: archive.mimeType || "application/octet-stream" 
-          })
+          }),
+          purpose: "assistants"
+        });
+
+        // Add file to vector store
+        await openai.vectorStores.files.create(vectorStoreId, {
+          file_id: file.id
         });
 
         // Update status to READY
