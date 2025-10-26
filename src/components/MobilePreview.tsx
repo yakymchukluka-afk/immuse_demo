@@ -20,27 +20,18 @@ interface Selections {
 }
 
 interface PreviewData {
-  hero: {
+  welcome: {
     title: string;
-    subtitle: string;
+    paragraph: string;
   };
-  what_to_expect: string[];
-  route_preview: Array<{
+  outline: Array<{
     room: string;
-    focus: string;
-    why: string;
-    minutes: number;
+    summary: string;
+    key_objects?: string[];
+    source_refs?: string[];
   }>;
-  first_object: {
-    title: string;
-    room: string;
-    reason: string;
-    source_refs: string[];
-    search_query: string;
-    preferred_sources: string[];
-    image_urls: string[];
-    attribution: string;
-  };
+  time_note: string;
+  cta_label?: string;
 }
 
 interface MobilePreviewProps {

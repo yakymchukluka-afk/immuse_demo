@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      // Generate tour using OpenAI Chat Completions API with file search
+      // Generate tour using OpenAI Chat Completions API
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
@@ -91,17 +91,9 @@ export async function POST(request: NextRequest) {
           },
           {
             role: "user",
-            content: `Музей: ${museum.name}\nІнтереси: ${validatedData.interests.join(", ")}\nРівень: ${validatedData.level}\nЧас: ${validatedData.minutes} хв`
+            content: `Музей: ${museum.name}\nІнтереси: ${validatedData.interests.join(", ")}\nРівень: ${validatedData.level}\nЧас: ${validatedData.minutes} хв\n\nВикористовуй інформацію з архівів музею (vector store ID: ${museum.vectorStoreId}) для створення туру.`
           }
         ],
-        tools: [{ 
-          type: "file_search"
-        }],
-        tool_resources: {
-          file_search: {
-            vector_store_ids: [museum.vectorStoreId!]
-          }
-        },
         response_format: { 
           type: "json_schema", 
           json_schema: { 
