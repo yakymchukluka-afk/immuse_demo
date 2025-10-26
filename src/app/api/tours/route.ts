@@ -81,21 +81,27 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      // Generate tour using OpenAI Responses API
-      const response = await openai.responses.create({
+      // Generate tour using OpenAI Chat Completions API with file search
+      const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
-        system: SYSTEM_UA,
-        input: [{
-          role: "user",
-          content: `Музей: ${museum.name}\nІнтереси: ${validatedData.interests.join(", ")}\nРівень: ${validatedData.level}\nЧас: ${validatedData.minutes} хв`
-        }],
+        messages: [
+          {
+            role: "system",
+            content: SYSTEM_UA
+          },
+          {
+            role: "user",
+            content: `Музей: ${museum.name}\nІнтереси: ${validatedData.interests.join(", ")}\nРівень: ${validatedData.level}\nЧас: ${validatedData.minutes} хв`
+          }
+        ],
         tools: [{ 
-          type: "file_search",
+          type: "file_search"
+        }],
+        tool_resources: {
           file_search: {
             vector_store_ids: [museum.vectorStoreId!]
           }
-        }],
-        attachments: [{ vector_store_id: museum.vectorStoreId }],
+        },
         response_format: { 
           type: "json_schema", 
           json_schema: { 
@@ -107,7 +113,11 @@ export async function POST(request: NextRequest) {
       });
 
       // Parse the response
-      const resultJson = JSON.parse(response.output_text);
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("No content in response");
+      }
+      const resultJson = JSON.parse(content);
 
       // Create tour plan
       const tourPlan = await prisma.tourPlan.create({
